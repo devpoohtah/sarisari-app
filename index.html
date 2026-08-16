@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sari-Sari Store Product Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FBF6EC;
+    --paper-dim: #F3EBD8;
+    --ink: #201A12;
+    --ink-soft: #55493A;
+    --marigold: #F0A202;
+    --marigold-dark: #C97F00;
+    --jeepney-red: #C1272D;
+    --sign-green: #0B6E4F;
+    --twine: #8A6A3B;
+    --card-border: rgba(32, 26, 18, 0.12);
+    --shadow: 0 6px 0 rgba(32, 26, 18, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(240,162,2,0.05), transparent 40%),
+      radial-gradient(circle at 90% 30%, rgba(11,110,79,0.05), transparent 40%);
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .mono { font-family: 'Space Mono', monospace; }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  a { color: inherit; }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .brandmark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .brandmark .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--jeepney-red);
+    transform: rotate(45deg);
+  }
+
+  .lang-toggle {
+    display: flex;
+    background: var(--paper-dim);
+    border: 1.5px solid var(--card-border);
+    border-radius: 999px;
+    padding: 4px;
+    gap: 2px;
+  }
+
+  .lang-toggle button {
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    transition: all 0.15s ease;
+  }
+
+  .lang-toggle button.active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    text-align: center;
+    padding: 48px 24px 40px;
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sign-green);
+    background: rgba(11,110,79,0.08);
+    border: 1px solid rgba(11,110,79,0.25);
+    padding: 5px 14px;
+    border-radius: 999px;
+    margin-bottom: 22px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 6vw, 58px);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+
+  .hero h1 span {
+    color: var(--jeepney-red);
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .hero-sub {
+    max-width: 520px;
+    margin: 0 auto 36px;
+    font-size: 17px;
+    color: var(--ink-soft);
+  }
+
+  /* Price-tag download button — the signature element */
+  .tag-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--marigold);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 18px 34px 18px 42px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    border: 2px solid var(--ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .tag-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 rgba(32,26,18,0.12);
+  }
+
+  .tag-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 rgba(32,26,18,0.12);
+  }
+
+  .tag-button .hole {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--paper);
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+  }
+
+  .tag-string {
+    width: 2px;
+    height: 26px;
+    background: var(--twine);
+    margin: 0 auto 4px;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  .meta-row span { display: flex; align-items: center; gap: 6px; }
+  .meta-row .swatch { width: 8px; height: 8px; border-radius: 2px; background: var(--sign-green); }
+
+  /* ---------- Section shell ---------- */
+  section { padding: 56px 24px; }
+  .section-inner { max-width: 980px; margin: 0 auto; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--marigold-dark);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: clamp(24px, 3.4vw, 32px);
+    margin-bottom: 34px;
+  }
+
+  /* ---------- Feature cards ---------- */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .feature-card {
+    background: #FFFFFF;
+    border: 1.5px solid var(--card-border);
+    border-radius: 16px;
+    padding: 26px 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .feature-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .feature-card:nth-child(1) .feature-icon { background: rgba(11,110,79,0.12); }
+  .feature-card:nth-child(2) .feature-icon { background: rgba(240,162,2,0.16); }
+  .feature-card:nth-child(3) .feature-icon { background: rgba(193,39,45,0.10); }
+
+  .feature-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Preview mockups ---------- */
+  .preview-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+
+  .phone {
+    width: 200px;
+    height: 400px;
+    background: var(--ink);
+    border-radius: 32px;
+    padding: 10px;
+    box-shadow: var(--shadow);
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    padding: 18px 14px;
+  }
+
+  .phone-screen.dark-cam {
+    background: #0d0d0d;
+    justify-content: space-between;
+  }
+
+  .phone-title {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+
+  .mock-btn {
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    font-size: 11.5px;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .mock-btn.g { background: var(--sign-green); }
+  .mock-btn.m { background: var(--marigold-dark); }
+  .mock-btn.r { background: var(--jeepney-red); }
+
+  .scan-frame {
+    align-self: center;
+    width: 130px;
+    height: 90px;
+    border: 3px solid var(--marigold);
+    border-radius: 10px;
+  }
+
+  .cam-hint {
+    color: #fff;
+    font-size: 10px;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    background: rgba(255,255,255,0.1);
+    padding: 6px;
+    border-radius: 6px;
+    margin: 10px 0;
+  }
+
+  .price-card-mock {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 10px;
+    text-align: center;
+    margin-top: auto;
+  }
+
+  .price-card-mock .name { font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+  .price-card-mock .price { font-family: 'Fredoka', sans-serif; font-size: 22px; font-weight: 700; color: var(--sign-green); }
+
+  .preview-caption {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+    font-family: 'Space Mono', monospace;
+  }
+  .preview-col { display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Numbered steps ---------- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    background: #fff;
+    border: 1.5px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--marigold);
+    border: 2px solid var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .step-body h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    margin-bottom: 4px;
+  }
+
+  .step-body p {
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Manual tabs ---------- */
+  .manual-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .manual-tab {
+    border: 1.5px solid var(--card-border);
+    background: #fff;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+
+  .manual-tab.active {
+    background: var(--sign-green);
+    color: #fff;
+    border-color: var(--sign-green);
+  }
+
+  .manual-panel { display: none; }
+  .manual-panel.active { display: block; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    text-align: center;
+    padding: 40px 24px 60px;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+
+  footer .tag-string { margin-bottom: 10px; }
+
+  /* ---------- Language visibility ---------- */
+  [data-lang] { display: none; }
+  [data-lang].lang-active { display: block; }
+  span[data-lang].lang-active,
+  a[data-lang].lang-active,
+  strong[data-lang].lang-active { display: inline; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 720px) {
+    .features { grid-template-columns: 1fr; }
+    .preview-row { gap: 20px; }
+    .phone { width: 165px; height: 330px; }
+    .hero h1 { font-size: 36px; }
+  }
+  [data-lucide] {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+  stroke-width: 2.2;
+}
+
+.mock-btn [data-lucide] {
+  width: 13px;
+  height: 13px;
+  margin-right: 3px;
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brandmark"><span class="dot"></span> Sari-Sari Scanner</div>
+  <div class="lang-toggle">
+    <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+    <button id="btn-fil" onclick="setLang('fil')">FIL</button>
+  </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="hero-eyebrow" data-lang="en">FOR SARI-SARI STORE OWNERS</div>
+  <div class="hero-eyebrow" data-lang="fil">PARA SA MAY-ARI NG SARI-SARI STORE</div>
+
+  <h1 data-lang="en">Scan it. Price it. <span>Done.</span></h1>
+  <h1 data-lang="fil">I-scan. Presyuhan. <span>Tapos na.</span></h1>
+
+  <p class="hero-sub" data-lang="en">A simple barcode scanner for your sari-sari store. Add products, check prices, and manage your whole registry — right from your phone, even offline.</p>
+  <p class="hero-sub" data-lang="fil">Simpleng barcode scanner para sa iyong sari-sari store. Magdagdag ng produkto, tingnan ang presyo, at pamahalaan lahat — sa iyong telepono, kahit walang internet.</p>
+
+  <div class="tag-string"></div>
+  <a class="tag-button" href="https://github.com/devpoohtah/sarisari-app/releases/download/v1.0.0/SariSariStoreProductScanner.apk" download>
+    <span class="hole"></span>
+    <span data-lang="en">Download for Android</span>
+    <span data-lang="fil">I-download para sa Android</span>
+  </a>
+
+  <div class="meta-row">
+    <span><span class="swatch"></span> v1.0.0</span>
+    <span class="mono">· 86 MB</span>
+    <span class="mono" data-lang="en">· Works offline</span>
+    <span class="mono" data-lang="fil">· Gumagana kahit offline</span>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section>
+  <div class="section-inner">
+    <div class="section-label" data-lang="en">WHAT IT DOES</div>
+    <div class="section-label" data-lang="fil">ANO ANG GINAGAWA NITO</div>
+    <h2 class="section-title" data-lang="en">Three things, made simple</h2>
+    <h2 class="section-title" data-lang="fil">Tatlong bagay, ginawang simple</h2>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon"><i data-lucide="circle-plus"></i></div>
+        <h3 data-lang="en">Add Product</h3>
+        <h3 data-lang="fil">Magdagdag ng Produkto</h3>
+        <p data-lang="en">Scan a barcode, type in the name and price once. It's saved for good.</p>
+        <p data-lang="fil">I-scan ang barcode, i-type ang pangalan at presyo. Naka-save na ito.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i data-lucide="banknote"></i></div>
+        <h3 data-lang="en">Check Price</h3>
+        <h3 data-lang="fil">Tingnan ang Presyo</h3>
+        <p data-lang="en">Scan any registered item and the price shows up instantly.</p>
+        <p data-lang="fil">I-scan ang naka-rehistrong produkto at lalabas agad ang presyo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i data-lucide="pencil"></i></div>
+        <h3 data-lang="en">Manage Products</h3>
+        <h3 data-lang="fil">Pamahalaan ang mga Produkto</h3>
+        <p data-lang="en">Browse everything you've registered. Edit or remove anytime.</p>
+        <p data-lang="fil">Tingnan lahat ng naka-rehistro. I-edit o tanggalin anumang oras.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PREVIEW ================= -->
+<section style="background: var(--paper-dim);">
+  <div class="section-inner">
+    <div class="section-label" data-lang="en">A LOOK INSIDE</div>
+    <div class="section-label" data-lang="fil">TINGNAN SA LOOB</div>
+    <h2 class="section-title" data-lang="en">Big buttons, easy to use</h2>
+    <h2 class="section-title" data-lang="fil">Malaking button, madaling gamitin</h2>
+
+    <div class="preview-row">
+      <div class="preview-col">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-title" data-lang="en">Sari-Sari Store<br>Price Registry</div>
+            <div class="phone-title" data-lang="fil">Sari-Sari Store<br>Rehistro ng Presyo</div>
+            <div class="mock-btn g" data-lang="en"><i data-lucide="circle-plus"></i> Add Product</div>
+            <div class="mock-btn g" data-lang="fil"><i data-lucide="circle-plus"></i> Magdagdag ng Produkto</div>
+            <div class="mock-btn m" data-lang="en"><i data-lucide="banknote"></i> Check Price</div>
+            <div class="mock-btn m" data-lang="fil"><i data-lucide="banknote"></i> Tingnan ang Presyo</div>
+            <div class="mock-btn r" data-lang="en"><i data-lucide="clipboard-list"></i> View All Products</div>
+            <div class="mock-btn r" data-lang="fil"><i data-lucide="clipboard-list"></i> Lahat ng Produkto</div>
+          </div>
+        </div>
+        <div class="preview-caption" data-lang="en">HOME SCREEN</div>
+        <div class="preview-caption" data-lang="fil">TAHANANG SCREEN</div>
+      </div>
+
+      <div class="preview-col">
+        <div class="phone">
+          <div class="phone-screen dark-cam">
+            <div class="cam-hint" data-lang="en">Align barcode within the frame</div>
+            <div class="cam-hint" data-lang="fil">Ilagay ang barcode sa loob ng frame</div>
+            <div class="scan-frame"></div>
+            <div class="price-card-mock">
+              <div class="name">Lucky Me Pancit Canton</div>
+              <div class="price">₱15.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="preview-caption" data-lang="en">SCAN &amp; RESULT</div>
+        <div class="preview-caption" data-lang="fil">PAG-SCAN AT RESULTA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= INSTALL ================= -->
+<section>
+  <div class="section-inner">
+    <div class="section-label" data-lang="en">GETTING STARTED</div>
+    <div class="section-label" data-lang="fil">PAANO MAGSIMULA</div>
+    <h2 class="section-title" data-lang="en">How to install</h2>
+    <h2 class="section-title" data-lang="fil">Paano i-install</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4 data-lang="en">Tap the download button above</h4>
+          <h4 data-lang="fil">Pindutin ang download button sa itaas</h4>
+          <p data-lang="en">The file (SariSariStoreProductScanner.apk) will save to your phone.</p>
+          <p data-lang="fil">Mase-save ang file (SariSariStoreProductScanner.apk) sa iyong telepono.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4 data-lang="en">Allow installs from this source</h4>
+          <h4 data-lang="fil">Payagan ang pag-install mula rito</h4>
+          <p data-lang="en">Android will ask permission since this isn't from the Play Store. Tap "Settings" then turn on "Allow from this source."</p>
+          <p data-lang="fil">Magtatanong ang Android dahil hindi ito galing sa Play Store. Pindutin ang "Settings" pagkatapos i-on ang "Allow from this source."</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4 data-lang="en">Tap "Install"</h4>
+          <h4 data-lang="fil">Pindutin ang "Install"</h4>
+          <p data-lang="en">Open the downloaded file and confirm the install. It only takes a few seconds.</p>
+          <p data-lang="fil">Buksan ang na-download na file at kumpirmahin ang install. Ilang segundo lang.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4 data-lang="en">Open the app and allow camera access</h4>
+          <h4 data-lang="fil">Buksan ang app at payagan ang camera</h4>
+          <p data-lang="en">Needed for scanning barcodes. You're ready to go.</p>
+          <p data-lang="fil">Kailangan ito para sa pag-scan ng barcode. Handa ka na.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= USER MANUAL ================= -->
+<section style="background: var(--paper-dim);">
+  <div class="section-inner">
+    <div class="section-label" data-lang="en">USER MANUAL</div>
+    <div class="section-label" data-lang="fil">GABAY SA PAGGAMIT</div>
+    <h2 class="section-title" data-lang="en">How to use each feature</h2>
+    <h2 class="section-title" data-lang="fil">Paano gamitin ang bawat bahagi</h2>
+
+    <div class="manual-tabs">
+      <button class="manual-tab active" onclick="setManual('add')" id="tab-add"></button>
+      <button class="manual-tab" onclick="setManual('check')" id="tab-check"></button>
+      <button class="manual-tab" onclick="setManual('manage')" id="tab-manage"></button>
+    </div>
+
+    <div class="manual-panel active" id="panel-add">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body">
+          <h4 data-lang="en">From the home screen, tap "Add Product"</h4>
+          <h4 data-lang="fil">Sa home screen, pindutin ang "Magdagdag ng Produkto"</h4>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body">
+          <h4 data-lang="en">Point your camera at the item's barcode</h4>
+          <h4 data-lang="fil">Itutok ang camera sa barcode ng produkto</h4>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body">
+          <h4 data-lang="en">Type the product name and price, then tap "Save Price"</h4>
+          <h4 data-lang="fil">I-type ang pangalan at presyo, pagkatapos pindutin ang "I-save ang Presyo"</h4>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body">
+          <h4 data-lang="en">If it's already registered, you'll see its current price and can go manage it instead</h4>
+          <h4 data-lang="fil">Kung naka-rehistro na, makikita ang kasalukuyang presyo at pwede itong pamahalaan</h4>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="manual-panel" id="panel-check">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body">
+          <h4 data-lang="en">From the home screen, tap "Check Price"</h4>
+          <h4 data-lang="fil">Sa home screen, pindutin ang "Tingnan ang Presyo"</h4>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body">
+          <h4 data-lang="en">Scan the item — its name and price appear right away</h4>
+          <h4 data-lang="fil">I-scan ang produkto — lalabas agad ang pangalan at presyo</h4>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body">
+          <h4 data-lang="en">Tap "Scan Again" for the next item, or "Back to Home" when done</h4>
+          <h4 data-lang="fil">Pindutin ang "I-scan Ulit" para sa susunod, o "Bumalik sa Home" kung tapos na</h4>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="manual-panel" id="panel-manage">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body">
+          <h4 data-lang="en">From the home screen, tap "View All Products"</h4>
+          <h4 data-lang="fil">Sa home screen, pindutin ang "Lahat ng Produkto"</h4>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body">
+          <h4 data-lang="en">Browse your full list of registered products</h4>
+          <h4 data-lang="fil">Tingnan ang buong listahan ng naka-rehistrong produkto</h4>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body">
+          <h4 data-lang="en">Tap the pencil icon to edit a name or price, or the trash icon to delete it</h4>
+          <h4 data-lang="fil">Pindutin ang pencil icon para i-edit ang pangalan o presyo, o ang trash icon para tanggalin</h4>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body">
+          <h4 data-lang="en">Deleting will ask you to confirm first — it cannot be undone</h4>
+          <h4 data-lang="fil">Magtatanong muna bago tanggalin — hindi na ito maibabalik</h4>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="tag-string" style="margin: 0 auto 12px;"></div>
+  <p data-lang="en">Made for sari-sari store owners. Free to download, works without internet.</p>
+  <p data-lang="fil">Ginawa para sa may-ari ng sari-sari store. Libreng i-download, gumagana kahit walang internet.</p>
+</footer>
+
+<script>
+  const manualLabels = {
+    en: { add: 'Add Product', check: 'Check Price', manage: 'Manage Products' },
+    fil: { add: 'Magdagdag', check: 'Tingnan Presyo', manage: 'Pamahalaan' }
+  };
+
+  let currentLang = 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.getElementById('btn-fil').classList.toggle('active', lang === 'fil');
+
+    document.querySelectorAll('[data-lang]').forEach(el => {
+      el.classList.toggle('lang-active', el.getAttribute('data-lang') === lang);
+    });
+
+    document.getElementById('tab-add').textContent = manualLabels[lang].add;
+    document.getElementById('tab-check').textContent = manualLabels[lang].check;
+    document.getElementById('tab-manage').textContent = manualLabels[lang].manage;
+  }
+
+  function setManual(which) {
+    ['add', 'check', 'manage'].forEach(key => {
+      document.getElementById('panel-' + key).classList.toggle('active', key === which);
+      document.getElementById('tab-' + key).classList.toggle('active', key === which);
+    });
+  }
+
+  setLang('en');
+lucide.createIcons();
+</script>
+
+</body>
+</html>
